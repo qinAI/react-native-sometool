@@ -10,7 +10,7 @@
   "keywords": [
     "react-native"
   ],
-  "author": "",
+  "author": "qinAI",
   "license": "",
   "peerDependencies": {
     "react-native": "^0.41.2"
@@ -18,5 +18,5 @@
   "repository": {
       "type": "git",
       "url": "https://github.com/qinAI/react-native-sometool.git"
-  },
+  }
 }
