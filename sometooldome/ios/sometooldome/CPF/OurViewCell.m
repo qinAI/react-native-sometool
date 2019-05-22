@@ -70,23 +70,4 @@
 
 
 
-
-//- (void)awakeFromNib {
-//    self.backgroundColor = [UIColor clearColor];
-//
-////    self.imageView.backgroundColor = [UIColor colorWithWhite:1 alpha:1];
-////    self.imageView.layer.borderColor = [UIColor whiteColor].CGColor;
-////    self.imageView.layer.borderWidth = 5.0f;
-//    self.imageView.layer.cornerRadius = 5.0f;
-//    self.imageView.layer.masksToBounds = YES;
-//
-//
-//
-//    self.titleLable.font = [UIFont systemFontOfSize:12];
-//    self.titleLable.textColor = [UIColor whiteColor];
-//    self.titleLable.numberOfLines = 4;
-//}
-
-
-
 @end
