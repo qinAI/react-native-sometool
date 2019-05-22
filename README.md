@@ -20,10 +20,6 @@ sometooldome 文件夹中写了一些小东西
 ```
 
 
-`$ yarn add react-native-sometool`
-`$ react-native link react-native-sometool`
-
-
 
 ## Usage
 ```javascript
