@@ -16,6 +16,11 @@
 #import "KmaCropImageController.h"
 #import "PhotoFrameFilterViewController.h"
 
+#import "SDAVAssetExportSession.h"
+
+#import "sometooldome-Swift.h"
+
+
 @implementation RNSometool
 
 - (dispatch_queue_t)methodQueue
@@ -469,6 +474,12 @@ RCT_EXPORT_METHOD(showVideosSelectorType:(BOOL)isSingle callback:(RCTResponseSen
 
 RCT_EXPORT_METHOD(showPhotoFrameImageVc:(NSString *)imagePath maxWH:(int)maxWH callback:(RCTResponseSenderBlock)completion){
   
+  UIImage *image = [UIImage imageWithContentsOfFile:[imagePath removeFilePathHeader]];
+  if (image == nil) {
+    completion(@[@(202),@{@"msg":@"图片不存在"}]);
+    return;
+  }
+  
   [UIApplication sharedApplication].keyWindow.userInteractionEnabled = NO;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
     [UIApplication sharedApplication].keyWindow.userInteractionEnabled = YES;
@@ -498,6 +509,12 @@ RCT_EXPORT_METHOD(showPhotoFrameImageVc:(NSString *)imagePath maxWH:(int)maxWH c
 
 RCT_EXPORT_METHOD(showCropFilterImageVc:(NSString *)imagePath type:(int)type callback:(RCTResponseSenderBlock)completion)
 {
+  
+  UIImage *image = [UIImage imageWithContentsOfFile:[imagePath removeFilePathHeader]];
+  if (image == nil) {
+    completion(@[@(202),@{@"msg":@"图片不存在"}]);
+    return;
+  }
   
   [UIApplication sharedApplication].keyWindow.userInteractionEnabled = NO;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -534,6 +551,143 @@ RCT_EXPORT_METHOD(showCropFilterImageVc:(NSString *)imagePath type:(int)type cal
   
 }
 
+
+RCT_EXPORT_METHOD(showVideoPlayer:(NSString*) url)
+{
+  self.videoURL = [NSURL URLWithString:url];
+  UIViewController *rootViewController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+  
+  AVPlayer *player = [AVPlayer playerWithURL:self.videoURL];
+  self.playerViewController = [AVPlayerViewController new];
+  _playerViewController.player = player;
+  _playerViewController.showsPlaybackControls = YES;
+  
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+    
+    [rootViewController.view addSubview:self.playerViewController.view];
+    [rootViewController presentViewController:self.playerViewController animated:YES completion:nil];
+    
+  });
+  
+  [_playerViewController.player play];
+}
+
+
+
+
+
+
+
+#pragma mark - RNVideoTrimmer的所有方法  ios12 无法正常运行 所有直接使用源码
+#pragma mark getVideoInfo                获取视频信息
+#pragma mark videoTrimmerCrop            裁剪
+#pragma mark videoTrimmerTrim             质量
+#pragma mark videoTrimmerboomerang        正反
+#pragma mark videoTrimmerReverse          翻转
+#pragma mark videoTrimmerCompress         压缩
+#pragma mark videoTrimmerPreviewImage     获取视频帧
+
+RCT_EXPORT_METHOD(getVideoInfo:(NSString *)url callback:(RCTResponseSenderBlock)completion)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:url]];
+  if (asset == nil) {
+    completion(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt getAssetInfo:url callback:^(NSArray *response) {
+    completion(response);
+  }];
+  
+}
+
+
+RCT_EXPORT_METHOD(videoTrimmerCrop:(NSString *)source options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt crop:source options:options callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(videoTrimmerTrim:(NSString *)source options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt trim:source options:options callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(videoTrimmerboomerang:(NSString *)source options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt boomerang:source options:options callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(videoTrimmerReverse:(NSString *)source options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt reverse:source options:options callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(videoTrimmerCompress:(NSString *)source options:(NSDictionary *)options callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  [vt compress:source options:options callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(videoTrimmerPreviewImage:(NSString *)source atTime:(float)atTime maximumSize:(NSDictionary *)maximumSize format:(NSString *)format callback:(RCTResponseSenderBlock)callback)
+{
+  AVAsset *asset = [AVAsset assetWithURL:[NSURL fileURLWithPath:source]];
+  if (asset == nil) {
+    callback(@[@"202",@"视频不存在"]);
+    return;
+  }
+  
+  RNVideoTrimmer *vt = [RNVideoTrimmer new];
+  
+  [vt getPreviewImageAtPosition:source atTime:atTime maximumSize:maximumSize format:format callback:^(NSArray *response) {
+    callback(response);
+  }];
+}
 
 
 @end

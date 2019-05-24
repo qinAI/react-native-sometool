@@ -5,7 +5,11 @@
 #import <React/RCTBridgeModule.h>
 #endif
 
-@interface RNSometool : NSObject <RCTBridgeModule>
+#import <AVKit/AVKit.h>
+#import <AVFoundation/AVFoundation.h>
 
+@interface RNSometool : NSObject <RCTBridgeModule>
+@property (strong, nonatomic) NSURL *videoURL;
+@property (nonatomic, strong) AVPlayerViewController *playerViewController;
 @end
   

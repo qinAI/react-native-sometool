@@ -13,10 +13,12 @@ import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.BaseActivityEventListener;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
@@ -25,27 +27,42 @@ import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
+import com.shahenlibrary.Trimmer.Trimmer;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+
+import wseemann.media.FFmpegMediaMetadataRetriever;
 
 import static android.app.Activity.RESULT_OK;
 
 public class RNSometoolModule extends ReactContextBaseJavaModule {
+
+
+  static final String REACT_PACKAGE = "RNSometoolModule";
+
 
   private Callback mPickerCallback;     // 保存回调
   private Callback editImageCallBack;   //编辑图片
 
 
 
+  private ReactApplicationContext reactContext;
+
+
   public RNSometoolModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    this.reactContext = reactContext;
 
     /**
      * 添加控制器返回监听
      */
     reactContext.addActivityEventListener(activityEventListener);
+
+
+    Trimmer.loadFfmpeg(reactContext);
 
   }
 
@@ -343,9 +360,12 @@ public class RNSometoolModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void showPhotoFrameImageVc(String imagePath,  int maxWH, Callback callback){
 
+    if (imagePath == null || imagePath.length() == 0){
+        callback.invoke(202,new WritableNativeArray());
+        return;
+    }
 
     this.editImageCallBack = callback;
-
 
     String path = AppUtils.removeFilePathHeader(imagePath);
 
@@ -360,6 +380,12 @@ public class RNSometoolModule extends ReactContextBaseJavaModule {
 
   @ReactMethod
   public void showCropFilterImageVc(String imagePath, int type, Callback callback){
+
+
+    if (imagePath == null || imagePath.length() == 0){
+      callback.invoke(202,new WritableNativeArray());
+      return;
+    }
 
 
     this.editImageCallBack = callback;
@@ -384,6 +410,84 @@ public class RNSometoolModule extends ReactContextBaseJavaModule {
 
     }
 
+  }
+
+
+
+
+  @ReactMethod
+  public void showVideoPlayer(String url){
+
+    /**
+     * 系统自带播放视频
+     */
+    Uri uri = Uri.parse(AppUtils.removeFilePathHeader(url));
+    //调用系统自带的播放器
+    Intent intent = new Intent(Intent.ACTION_VIEW);
+    intent.setDataAndType(uri, "video/*");
+    getCurrentActivity().startActivity(intent);
+
+
+//    VideoView
+//    MediaPlayer
+
+  }
+
+
+  /**
+   *
+   * @param path
+   * @param promise
+   */
+
+
+  @ReactMethod
+  public void videoTrimmerPreviewImages(String path, Promise promise) {
+    Log.d(REACT_PACKAGE, "getPreviewImages: " + path);
+    Trimmer.getPreviewImages(path, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void getVideoInfo(String path, Promise promise) {
+    Log.d(REACT_PACKAGE, "getVideoInfo: " + path);
+    Trimmer.getVideoInfo(path, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerTrim(ReadableMap options, Promise promise) {
+    Log.d(REACT_PACKAGE, options.toString());
+    Trimmer.trim(options, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerCompress(String path, ReadableMap options, Promise promise) {
+    Log.d(REACT_PACKAGE, "compress video: " + options.toString());
+    Trimmer.compress(path, options, promise, null, null, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerPreviewImage(ReadableMap options, Promise promise) {
+    String source = options.getString("source");
+    double sec = options.hasKey("second") ? options.getDouble("second") : 0;
+    String format = options.hasKey("format") ? options.getString("format") : null;
+    Trimmer.getPreviewImageAtPosition(source, sec, format, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerCrop(String path, ReadableMap options, Promise promise) {
+    Trimmer.crop(path, options, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerboomerang(String path, Promise promise) {
+    Log.d(REACT_PACKAGE, "boomerang video: " + path);
+    Trimmer.boomerang(path, promise, reactContext);
+  }
+
+  @ReactMethod
+  public void videoTrimmerReverse(String path, Promise promise) {
+    Log.d(REACT_PACKAGE, "reverse video: " + path);
+    Trimmer.reverse(path, promise, reactContext);
   }
 
 }

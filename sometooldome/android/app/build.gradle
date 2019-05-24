@@ -103,6 +103,7 @@ android {
     }
 
     defaultConfig {
+        multiDexEnabled true
         applicationId "com.sometooldome"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -142,6 +143,14 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-linear-gradient')
+    implementation project(':react-native-orientation')
+    implementation project(':react-native-vector-icons')
+    implementation project(':react-native-keep-awake')
+    implementation project(':react-native-video')
+    compile 'com.yqritc:android-scalablevideoview:1.0.4'
+    compile 'com.googlecode.mp4parser:isoparser:1.1.20'
+    compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
     implementation 'com.android.support:design:27.1.1'
     implementation 'jp.co.cyberagent.android:gpuimage:2.0.3'
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.6.+'
